@@ -12,68 +12,73 @@ const int dosagePump1 = 4;
 const int dosagePump2 = 5;
 const int dosagePump3 = 6;
 const int dosagePump4 = 7;
-const int sensorPin1 = A0;
-const int sensorPin2 = A1;
+const int maxSensorPin = A0;
+const int minSensorPin = A1;
 
-int sense1 = 0;
+int senseMax = 0;
 int sense2 = 0;
 
 void setup(){
-  Serial.begin(9600);
+  Serial.begin(9600); //Initialize Serial for debugging
+
+  //Initialize LCD Display
   lcd.begin(16,2);         // initialize the lcd for 20 chars 4 lines and turn on backlight
   lcd.backlight(); // finish with backlight on  
   lcd.setCursor(1,0); //Start at character 4 on line 0
   lcd.print("Urinstand: ");
-  //pinMode(buzzer, OUTPUT); // Set buzzer - pin 9 as an output
+
+  //Set pinModes
   pinMode(led, OUTPUT);
   pinMode(waterSensor, OUTPUT);
   pinMode(dosagePump1, OUTPUT);
   pinMode(dosagePump2, OUTPUT);
   pinMode(dosagePump3, OUTPUT);
   pinMode(dosagePump4, OUTPUT);
-  pinMode(sensorPin1, INPUT);
-  pinMode(sensorPin2, INPUT);
+  pinMode(maxSensorPin, INPUT);
+  pinMode(minSensorPin, INPUT);
 
   // Relays standardmässig ausschalten (HIGH = aus)
   digitalWrite(dosagePump1,HIGH);
   digitalWrite(dosagePump2,HIGH);
   digitalWrite(dosagePump3,HIGH);
   digitalWrite(dosagePump4,HIGH);   
-  
-  //t.oscillate(dosagePump, 100000, LOW);
- // t.every(30000, t.pulse(dosagePump2, 5000, HIGH)); 
-}
-void loop() {
 
-  /*
-  updatePump();
-  t.update();
+  //Set Timers
+  //t.oscillate(dosagePump, 100000, LOW);
+  // t.every(30000, t.pulse(dosagePump2, 5000, HIGH)); 
 }
-boolean senseWater1() {
+
+void loop() {
+  t.update(); //Update Timer
+}
+
+//Sense if maximal level is reached
+boolean senseMaxLevel() {
   //Read Pin
-  digitalWrite(waterSensor,HIGH);
-  Serial.println(analogRead(sensorPin1));
-  if (analogRead(sensorPin1) < 100) {
-    sense1+=1;
+  digitalWrite(waterSensor,HIGH); //Turn voltage on
+  if (analogRead(maxSensorPin) < 100) {
+    senseMax+=1;
   }else{
-    sense1-=1;
+    senseMax-=1;
   }
   //Check Borders
-  sense1 = min(sense1 , 100);
-  sense1 = max(sense1 , 0);
+  senseMax = min(senseMax , 100);
+  senseMax = max(senseMax , 0);
+  
+  digitalWrite(waterSensor,LOW); //Turn voltage off
   //Return Boolean
-  if (sense1 >= 100) {
+  if (senseMax >= 100) {
     return true;
   } else {
     return false;
   }
-    digitalWrite(waterSensor,LOW);
 }
 
-boolean senseWater2() {
+//Sense if minimal level is reached
+boolean senseMinLevel() {
   //Read Pin
-  digitalWrite(waterSensor,HIGH);
-  if (analogRead(sensorPin2) < 100) {
+  digitalWrite(waterSensor,HIGH); //Turn voltage on
+  if (analogRead(minSensorPin) < 100) {
     sense2+=1;
   }else{
     sense2-=1;
@@ -81,6 +86,8 @@ boolean senseWater2() {
   //Check Borders
   sense2 = min(sense2 , 10000);
   sense2 = max(sense2 , 0);
+  
+  digitalWrite(waterSensor,LOW); //Turn voltage off
   //Return Boolean
   if (sense2 >= 10000) {
     return true;
@@ -89,24 +96,3 @@ boolean senseWater2() {
   }
     digitalWrite(waterSensor,LOW);
 }
-
-void updatePump() {
-  if (senseWater1() == true) {
-    digitalWrite(dosagePump1,LOW);
-  } else { 
-    digitalWrite(dosagePump1,HIGH);
-  }
-  
-  */
-  
-}
-
-
-/*
-void buzzer() {
-  tone(buzzer, 101); // Send 1KHz sound signal...
-  delay(100);        // ...for 1 sec
-  noTone(buzzer);     // Stop sound...
-  delay(100);        // ...for 1sec
-}
-*/
