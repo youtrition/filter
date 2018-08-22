@@ -2,10 +2,13 @@
 #include <Timer.h>
 #include <LiquidCrystal_I2C.h>
 
+//Create LCD Display
 LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address
 
+//Create Timer
 Timer t;
 
+//Set Pins
 const int led = 12;
 const int waterSensor = 3;
 const int dosagePump1 = 4;
@@ -15,8 +18,9 @@ const int dosagePump4 = 7;
 const int maxSensorPin = A0;
 const int minSensorPin = A1;
 
+//Declare Variables
 int senseMax = 0;
-int sense2 = 0;
+int senseMin = 0;
 
 void setup(){
   Serial.begin(9600); //Initialize Serial for debugging
@@ -79,17 +83,17 @@ boolean senseMinLevel() {
   //Read Pin
   digitalWrite(waterSensor,HIGH); //Turn voltage on
   if (analogRead(minSensorPin) < 100) {
-    sense2+=1;
+    senseMin+=1;
   }else{
-    sense2-=1;
+    senseMin-=1;
   }
   //Check Borders
-  sense2 = min(sense2 , 10000);
-  sense2 = max(sense2 , 0);
+  senseMin = min(senseMin , 10000);
+  senseMin = max(senseMin , 0);
   
   digitalWrite(waterSensor,LOW); //Turn voltage off
   //Return Boolean
-  if (sense2 >= 10000) {
+  if (senseMin >= 10000) {
     return true;
   } else {
     return false;
