@@ -35,14 +35,7 @@ void setup(){
   //Initialize LCD Display
   lcd.begin(20,4);         // initialize the lcd for 20 chars 4 lines and turn on backlight
   lcd.backlight(); // finish with backlight on  
-  lcd.setCursor(1,0); //Start at character 4 on line 0
-  lcd.print("Urinstand: ");
-  lcd.setCursor(1,1); //Start at character 4 on line 0
-  lcd.print(".Gold in Progress. ");
-  lcd.setCursor(1,2); //Start at character 4 on line 0
-  lcd.print(".Gold in Progress. ");
-  lcd.setCursor(1,3); //Start at character 4 on line 0
-  lcd.print(".Gold in Progress. ");
+
     
   //Set pinModes
   pinMode(led, OUTPUT);
@@ -51,6 +44,7 @@ void setup(){
   pinMode(dosagePump2, OUTPUT);
   pinMode(dosagePump3, OUTPUT);
   pinMode(dosagePump4, OUTPUT);
+  pinMode(UVSterilizer, OUTPUT);  
   pinMode(maxSensorPin, INPUT);
   pinMode(minSensorPin, INPUT);
 
@@ -58,7 +52,8 @@ void setup(){
   digitalWrite(dosagePump1,HIGH);
   digitalWrite(dosagePump2,HIGH);
   digitalWrite(dosagePump3,HIGH);
-  digitalWrite(dosagePump4,HIGH);   
+  digitalWrite(dosagePump4,HIGH);  
+  digitalWrite(UVSterilizer,HIGH);    
 }
 
 
@@ -87,7 +82,7 @@ void phase1Off() {
 void phase2() {
   digitalWrite(dosagePump4,LOW);
   digitalWrite(UVSterilizer,LOW);
-  t.after(5000, phase1Off);
+  t.after(5000, phase2Off);
 }
 
 void phase2Off() {
@@ -156,6 +151,12 @@ boolean senseMinLevel() {
 
 void loop() {
   t.update(); //Update Timer
+  lcd.setCursor(1,0); //Start at character 4 on line 0
+  lcd.print(phase);
+  lcd.print(Phase0);
+  lcd.print(Phase1);
+  lcd.print(Phase2);
+  lcd.print(Phase3);
   Serial.println(phase);
   switch(phase) {
     case 0: //Fill up charcoal filters
@@ -165,7 +166,7 @@ void loop() {
     if (Phase1 == false) { phase1(); Phase1 = true; }
     break;
     case 2: //Empty Filters
-    if (Phase2 == false) { phase2(); Phase0 = true; }
+    if (Phase2 == false) { phase2(); Phase2 = true; }
     break;
     case 3: //Empty Sterilizer
     if (Phase3 == false) { phase3(); Phase3 = true; }
