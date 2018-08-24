@@ -26,11 +26,17 @@ void setup(){
   Serial.begin(9600); //Initialize Serial for debugging
 
   //Initialize LCD Display
-  lcd.begin(16,2);         // initialize the lcd for 20 chars 4 lines and turn on backlight
+  lcd.begin(20,4);         // initialize the lcd for 20 chars 4 lines and turn on backlight
   lcd.backlight(); // finish with backlight on  
   lcd.setCursor(1,0); //Start at character 4 on line 0
   lcd.print("Urinstand: ");
-
+  lcd.setCursor(1,1); //Start at character 4 on line 0
+  lcd.print(".Gold in Progress. ");
+  lcd.setCursor(1,2); //Start at character 4 on line 0
+  lcd.print(".Gold in Progress. ");
+  lcd.setCursor(1,3); //Start at character 4 on line 0
+  lcd.print(".Gold in Progress. ");
+    
   //Set pinModes
   pinMode(led, OUTPUT);
   pinMode(waterSensor, OUTPUT);
