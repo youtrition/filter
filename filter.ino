@@ -15,12 +15,19 @@ const int dosagePump1 = 4;
 const int dosagePump2 = 5;
 const int dosagePump3 = 6;
 const int dosagePump4 = 7;
+const int UVSterilizer = 8;
 const int maxSensorPin = A0;
 const int minSensorPin = A1;
 
 //Declare Variables
 int senseMax = 0;
 int senseMin = 0;
+int phase = 0;
+
+boolean phase0 = false;
+boolean phase1 = false;
+boolean phase2 = false;
+boolean phase3 = false;
 
 void setup(){
   Serial.begin(9600); //Initialize Serial for debugging
@@ -46,14 +53,72 @@ void setup(){
   digitalWrite(dosagePump2,HIGH);
   digitalWrite(dosagePump3,HIGH);
   digitalWrite(dosagePump4,HIGH);   
-
-  //Set Timers
-  //t.oscillate(dosagePump, 100000, LOW);
-  // t.every(30000, t.pulse(dosagePump2, 5000, HIGH)); 
 }
 
 void loop() {
   t.update(); //Update Timer
+  Serial.println(phase)
+  switch(phase) {
+    case 0: //Fill up charcoal filters
+    if phase0 == false { phase0(); phase0 = true; }
+    break;
+    case 1: //Filtration for 1.5 hours
+    if phase1 == false { phase1(); phase1 = true; }
+    break;
+    case 2: //Empty Filters
+    if phase2 == false { phase2(); phase0 = true; }
+    break;
+    case 3: //Empty Sterilizer
+    if phase3 == false { phase3(); phase3 = true; }
+    break; 
+  }
+}
+
+void phase0() {
+  digitalWrite(dosagePump1,LOW};
+  digitalWrite(dosagePump3,LOW};
+  t.after(5000, phase0Off()); 
+}
+
+void phase0Off() {
+  digitalWrite(dosagePump1,HIGH};
+  digitalWrite(dosagePump3,HIGH};
+  phase = 1;
+  phase0 = false;
+}
+
+void phase1() {
+  t.after(5000, phase1Off())
+}
+
+void phase1Off() {
+  phase = 2;
+  phase1 = false;
+}
+
+void phase2() {
+  digitalWrite(dosagePump4,LOW};
+  digitalWrite(UVSterilizer,LOW);
+  t.after(5000, phase1Off());
+}
+
+void phase2Off() {
+  digitalWrite(dosagePump4,HIGH};
+  phase = 3;
+  phase2 = false;
+}
+
+void phase3() {
+  digitalWrite(dosagePump2,LOW};
+  t.after(5000, phase3Off());
+}
+
+void phase3Off() {
+  digitalWrite(dosagePump2,HIGH};
+  digitalWrite(dosagePump4,HIGH};
+  digitalWrite(UVSterilizer,HIGH);
+  phase = 0;
+  phase3 = false;
 }
 
 //Sense if maximal level is reached
