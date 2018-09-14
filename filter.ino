@@ -89,7 +89,7 @@ String intToString(long timer) {
 void phase0() {
   digitalWrite(dosagePump1,LOW);
   digitalWrite(dosagePump3,LOW);
-  lcd.clear();
+  resetLCD();
   lcd.setCursor(0,0);
   lcd.print("  Urin wird in AK-");
   lcd.setCursor(0,1);
@@ -102,6 +102,7 @@ void phase0() {
 void phase0Off() {
   digitalWrite(dosagePump1,HIGH);
   digitalWrite(dosagePump3,HIGH);
+  resetLCD();
   counter = 0; //counter reset
   phase = 1;
   Phase0 = false;
@@ -127,7 +128,7 @@ void phase1Off() {
 void phase2() {
   digitalWrite(dosagePump4,LOW);
   digitalWrite(UVSterilizer,LOW);
-  lcd.clear();
+  resetLCD();
   lcd.setCursor(0,0);
   lcd.print("  Urin wird in UV-");
   lcd.setCursor(0,1);
@@ -140,6 +141,7 @@ void phase2() {
 void phase2Off() {
   counter = 0;
   digitalWrite(dosagePump4,HIGH);
+  resetLCD();
   phase = 3;
   Phase2 = false;
 }
@@ -147,7 +149,7 @@ void phase2Off() {
 void phase3() {
   counter = 0; //counter reset
   digitalWrite(dosagePump2,LOW);
-  lcd.clear();
+  resetLCD();
   lcd.setCursor(0,0);
   lcd.print("Fluessiges Gold wird");
   lcd.setCursor(0,1);
@@ -161,6 +163,7 @@ void phase3Off() {
   digitalWrite(dosagePump2,HIGH);
   digitalWrite(dosagePump4,HIGH);
   digitalWrite(UVSterilizer,HIGH);
+  resetLCD();
   counter = 0;
   phase = 0;
   Phase3 = false;
@@ -241,4 +244,7 @@ void loop() {
     break; 
   }
 }
-
+void resetLCD() {
+  lcd.begin(20,4);  // initialize the lcd for 20 chars 4 lines and turn on backlight
+  lcd.clear();
+}
