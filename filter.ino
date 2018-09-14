@@ -2,11 +2,20 @@
 #include <Timer.h>
 #include <LiquidCrystal_I2C.h>
 
+#define displayLength 20.0
+
 //Create LCD Display
 LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address
 
 //Create Timer
 Timer t;
+
+// StatusBar Characters
+byte p1[8] = { 0x10,  0x10,  0x10,  0x10,  0x10,  0x10,  0x10,  0x10};
+byte p2[8] = { 0x18,  0x18,  0x18,  0x18,  0x18,  0x18,  0x18,  0x18};
+byte p3[8] = { 0x1C,  0x1C,  0x1C,  0x1C,  0x1C,  0x1C,  0x1C,  0x1C};
+byte p4[8] = { 0x1E,  0x1E,  0x1E,  0x1E,  0x1E,  0x1E,  0x1E,  0x1E};
+byte p5[8] = { 0x1F,  0x1F,  0x1F,  0x1F,  0x1F,  0x1F,  0x1F,  0x1F};
 
 //Set Pins
 const int led = 12;
@@ -23,14 +32,18 @@ const int minSensorPin = A1;
 int senseMax = 0;
 int senseMin = 0;
 int phase = 0;
-int counter = 0;
+double counter = 0;
+double percent = 0.0;
+unsigned char b;
+unsigned int lines;
+double test;
 
 boolean Phase0 = false;
 boolean Phase1 = false;
 boolean Phase2 = false;
 boolean Phase3 = false;
 
-long phase0Timer = 10000; //Timer Phase 0: 2min 40seconds - 160000
+long phase0Timer = 60000; //Timer Phase 0: 2min 40seconds - 160000
 long phase1Timer = 10000; //Timer Phase 1: 1,5 hours - 5400000
 long phase2Timer = 10000; //Timer Phase 2: 2 minutes???? - 120000
 long phase3Timer = 10000; //Timer Phase 3: same time?? 2 minutes?? - 120000
@@ -42,7 +55,13 @@ void setup(){
   lcd.begin(20,4);  // initialize the lcd for 20 chars 4 lines and turn on backlight
   lcd.backlight(); // finish with backlight on  
   lcd.clear();
-    
+
+  lcd.createChar(0, p1);
+  lcd.createChar(1, p2);
+  lcd.createChar(2, p3);
+  lcd.createChar(3, p4);
+  lcd.createChar(4, p5);
+   
   //Set pinModes
   pinMode(led, OUTPUT);
   pinMode(waterSensor, OUTPUT);
@@ -61,6 +80,8 @@ void setup(){
   digitalWrite(dosagePump4,HIGH);  
   digitalWrite(UVSterilizer,HIGH);  
 
+
+
   t.every(1000, count);
 }
 
@@ -70,20 +91,42 @@ void count() {
   lcd.print("                    "); //refresh 3. row of display every second to show timer properly
 }
 
-/*
-void statusBar(long timer) {
-  String bars;
-  for(int i=1; i<=int((counter / timer*100))%5;i++){
-    bars += "-";
+
+void statusBar(double percent, int lineNr = 2) {
+    lcd.setCursor(0,lineNr);
+    double a=displayLength/100*percent; //1% = 1 Character auf Display
+    if (a>=1) {
+      for (int i=1;i<a;i++) {
+        lcd.write(4); //Byte direkt auf Zeile schreiben (Char 4)
+        b = i; //b = Zeilennummer
+    }
+    a = a-b;  // Immer wieder von 0 auf 1 raufzählen durch a-b
   }
-  lcd.setCursor(0,2);
-  lcd.print((counter /(timer/1000))*5);
-  Serial.println((counter /(timer/1000))*5);
+  lines = a*5; // 0,2 x 5 = case 1; 0,4 x 5 = case 2; etc.
+  switch (lines) {
+    case 0:
+      break;
+    case 1:
+      lcd.print((char)0);
+      break;
+    case 2:
+      lcd.print((char)1);
+      break;
+    case 3:
+      lcd.print((char)2);
+      break;
+    case 4:
+      lcd.print((char)3);
+      break;    
+    case 5: 
+      lcd.print((char)4);
+      break;
+  }
 }
-*/
+
 
 String intToString(long timer) {
-   return String(" Noch ") + (((timer / 1000 - counter)/60)%60) +  String(" min ") + ((timer / 1000 - counter)%60) + String(" sek");
+   return String(" Noch ") + (((timer / 1000 - int(counter))/60)%60) +  String(" min ") + ((timer / 1000 - int(counter))%60) + String(" sek");
 }
   
 void phase0() {
@@ -221,25 +264,27 @@ void loop() {
     case 0: //Fill up charcoal filters
     lcd.setCursor(0,3);
     lcd.print(intToString(phase0Timer));
-//    statusBar(phase0Timer);
+    //test = (counter/phase0Timer*100);
+    lcd.setCursor(0,2);
+    statusBar(counter/phase0Timer*100000);
     if (Phase0 == false) { phase0(); Phase0 = true; }
     break;
     case 1: //Filtration for 1.5 hours
     lcd.setCursor(0,3);    
     lcd.print(intToString(phase1Timer));
-//    statusBar(phase1Timer);
+    statusBar(counter/phase1Timer*100000);
     if (Phase1 == false) { phase1(); Phase1 = true; }
     break;
     case 2: //Empty Filters
     lcd.setCursor(0,3);    
     lcd.print(intToString(phase2Timer));
-//    statusBar(phase2Timer);    
+    statusBar(counter/phase2Timer*100000);   
     if (Phase2 == false) { phase2(); Phase2 = true; }
     break;
     case 3: //Empty Sterilizer
     lcd.setCursor(0,3);    
     lcd.print(intToString(phase3Timer));
-//    statusBar(phase3Timer);    
+    statusBar(counter/phase3Timer*100000);    
     if (Phase3 == false) { phase3(); Phase3 = true; }
     break; 
   }
