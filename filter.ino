@@ -25,8 +25,12 @@ const int dosagePump2 = 5;
 const int dosagePump3 = 7;
 const int dosagePump4 = 6;
 const int UVSterilizer = 8;
-const int maxSensorPin = A0;
-const int minSensorPin = A1;
+const int urineLevelCylinder1 = 9;
+const int urineLevelCylinder2 = 10;
+const int urineLevelStorageUnfilteredMin = 11;
+const int urineLevelStorageUnfilteredMax = 12;
+const int urineLevelFlipFlop = 13;
+const int sensorPin = A0;
 
 //Declare Variables
 int senseMax = 0;
@@ -43,7 +47,7 @@ boolean Phase1 = false;
 boolean Phase2 = false;
 boolean Phase3 = false;
 
-long phase0Timer = 60000; //Timer Phase 0: 2min 40seconds - 160000
+long phase0Timer = 100000; //Timer Phase 0: 2min 40seconds - 160000
 long phase1Timer = 10000; //Timer Phase 1: 1,5 hours - 5400000
 long phase2Timer = 10000; //Timer Phase 2: 2 minutes???? - 120000
 long phase3Timer = 10000; //Timer Phase 3: same time?? 2 minutes?? - 120000
@@ -69,9 +73,15 @@ void setup(){
   pinMode(dosagePump2, OUTPUT);
   pinMode(dosagePump3, OUTPUT);
   pinMode(dosagePump4, OUTPUT);
-  pinMode(UVSterilizer, OUTPUT);  
-  pinMode(maxSensorPin, INPUT);
-  pinMode(minSensorPin, INPUT);
+  pinMode(UVSterilizer, OUTPUT);
+  pinMode(urineLevelCylinder1, OUTPUT);
+  pinMode(urineLevelCylinder2, OUTPUT);
+  pinMode(urineLevelStorageUnfilteredMin, OUTPUT);
+  pinMode(urineLevelStorageUnfilteredMax, OUTPUT); 
+  pinMode(urineLevelFlipFlop, OUTPUT);
+//  pinMode(maxSensorPin, INPUT);
+//  pinMode(minSensorPin, INPUT);
+  pinMode(sensorPin, INPUT);  
 
   // Relays standardmässig ausschalten (HIGH = aus)
   digitalWrite(dosagePump1,HIGH);
@@ -91,6 +101,25 @@ void count() {
   lcd.print("                    "); //refresh 3. row of display every second to show timer properly
 }
 
+
+void setPolarity(boolean flip1,boolean flip2,boolean flip3,boolean flip4,boolean flip5) {
+  if(flip1==false){digitalWrite(urineLevelFlipFlop, LOW);}else{digitalWrite(urineLevelFlipFlop, HIGH);}; 
+  if(flip2==false){digitalWrite(urineLevelCylinder1, LOW);}else{digitalWrite(urineLevelCylinder1, HIGH);}; 
+  if(flip3==false){digitalWrite(urineLevelCylinder2, LOW);}else{digitalWrite(urineLevelCylinder2, HIGH);}; 
+  if(flip4==false){digitalWrite(urineLevelStorageUnfilteredMin, LOW);}else{digitalWrite(urineLevelStorageUnfilteredMin, HIGH);}; 
+  if(flip5==false){digitalWrite(urineLevelStorageUnfilteredMax, LOW);}else{digitalWrite(urineLevelStorageUnfilteredMax, HIGH);}; 
+}
+
+boolean checkWater(int sensorNumber = 1) {
+  switch(sensorNumber) {
+    case 1:
+      setPolarity(1,0,1,1,1);
+      Serial.println(analogRead(sensorPin));
+      setPolarity(0,1,0,0,0);
+      Serial.println(analogRead(sensorPin));
+      break;
+  }
+}
 
 void statusBar(double percent, int lineNr = 2) {
     lcd.setCursor(0,lineNr);
@@ -212,6 +241,7 @@ void phase3Off() {
   Phase3 = false;
 }
 
+/*
 //Sense if maximal level is reached
 boolean senseMaxLevel() {
   //Read Pin
@@ -256,7 +286,7 @@ boolean senseMinLevel() {
   }
     digitalWrite(waterSensor,LOW);
 }
-
+*/
 void loop() {
   t.update(); //Update Timer
 
@@ -289,6 +319,7 @@ void loop() {
     break; 
   }
 }
+
 void resetLCD() {
   lcd.begin(20,4);  // initialize the lcd for 20 chars 4 lines and turn on backlight
   lcd.clear();
