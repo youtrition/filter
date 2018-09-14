@@ -111,13 +111,41 @@ void setPolarity(boolean flip1,boolean flip2,boolean flip3,boolean flip4,boolean
 }
 
 boolean checkWater(int sensorNumber = 1) {
+  int val;
   switch(sensorNumber) {
     case 1:
-      setPolarity(1,0,1,1,1);
-      Serial.println(analogRead(sensorPin));
       setPolarity(0,1,0,0,0);
-      Serial.println(analogRead(sensorPin));
+      val += analogRead(sensorPin);
+      setPolarity(1,0,1,1,1);
+      val += 1023 - analogRead(sensorPin);
+      if(val<=100) return true;
+      return false;
       break;
+    case 2:
+      setPolarity(0,0,1,0,0);
+      val += analogRead(sensorPin);
+      setPolarity(1,1,0,1,1);
+      val += 1023 - analogRead(sensorPin);
+      if(val<=100) return true;
+      return false;
+      break;
+    case 3:
+      setPolarity(0,0,0,1,0);
+      val += analogRead(sensorPin);
+      setPolarity(1,0,0,0,1);
+      val += 1023 - analogRead(sensorPin);
+      if(val<=100) return true;
+      return false;
+      break;
+    case 4:
+      setPolarity(0,0,0,0,1);
+      val += analogRead(sensorPin);
+      setPolarity(1,1,1,1,0);
+      val += 1023 - analogRead(sensorPin);
+      if(val<=100) return true;
+      return false;
+      break;
+ 
   }
 }
 
