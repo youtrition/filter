@@ -47,10 +47,10 @@ boolean Phase1 = false;
 boolean Phase2 = false;
 boolean Phase3 = false;
 
-long phase0Timer = 100000; //Timer Phase 0: 2min 40seconds - 160000
-long phase1Timer = 10000; //Timer Phase 1: 1,5 hours - 5400000
-long phase2Timer = 10000; //Timer Phase 2: 2 minutes???? - 120000
-long phase3Timer = 10000; //Timer Phase 3: same time?? 2 minutes?? - 120000
+long phase0Timer = 1000; //Timer Phase 0: 2min 40seconds - 160000
+long phase1Timer = 60000; //Timer Phase 1: 1,5 hours - 5400000
+long phase2Timer = 60000; //Timer Phase 2: 2 minutes???? - 120000
+long phase3Timer = 60000; //Timer Phase 3: same time?? 2 minutes?? - 120000
 
 void setup(){
   Serial.begin(9600); //Initialize Serial for debugging
@@ -111,38 +111,45 @@ void setPolarity(boolean flip1,boolean flip2,boolean flip3,boolean flip4,boolean
 }
 
 boolean checkWater(int sensorNumber = 1) {
-  int val;
+  int val =0;
   switch(sensorNumber) {
     case 1:
       setPolarity(0,1,0,0,0);
-      val += analogRead(sensorPin);
+      val = analogRead(sensorPin);
       setPolarity(1,0,1,1,1);
-      val += 1023 - analogRead(sensorPin);
-      if(val<=100) return true;
+      val += 600 - analogRead(sensorPin);
+      setPolarity(1,1,1,1,1);
+      /*
+      Serial.println(val);
+      lcd.setCursor(1,1);
+      lcd.print(val);
+      */
+      if(val>=5) return true;
       return false;
       break;
     case 2:
       setPolarity(0,0,1,0,0);
-      val += analogRead(sensorPin);
+      val = analogRead(sensorPin);
       setPolarity(1,1,0,1,1);
-      val += 1023 - analogRead(sensorPin);
-      if(val<=100) return true;
+      val += 600 - analogRead(sensorPin);
+      setPolarity(1,1,1,1,1);
+      if(val>=5) return true;
       return false;
       break;
     case 3:
       setPolarity(0,0,0,1,0);
-      val += analogRead(sensorPin);
+      val = analogRead(sensorPin);
       setPolarity(1,0,0,0,1);
-      val += 1023 - analogRead(sensorPin);
-      if(val<=100) return true;
+      val += 600 - analogRead(sensorPin);
+      if(val>=10) return true;
       return false;
       break;
     case 4:
       setPolarity(0,0,0,0,1);
-      val += analogRead(sensorPin);
+      val = analogRead(sensorPin);
       setPolarity(1,1,1,1,0);
-      val += 1023 - analogRead(sensorPin);
-      if(val<=100) return true;
+      val += 600 - analogRead(sensorPin);
+      if(val>=10) return true;
       return false;
       break;
  
@@ -200,12 +207,30 @@ void phase0() {
 }
 
 void phase0Off() {
-  digitalWrite(dosagePump1,HIGH);
-  digitalWrite(dosagePump3,HIGH);
+  boolean one;
+  boolean two;
+  if(checkWater(1)==true) {
+    digitalWrite(dosagePump1,HIGH);
+    one=true;
+  }else {
+    digitalWrite(dosagePump1,LOW);
+    one=false;
+  }
+  if(checkWater(2)==true) {
+    digitalWrite(dosagePump3,HIGH);
+    two=true;
+  } else {
+    digitalWrite(dosagePump3,LOW);
+    two=false;
+  }
   resetLCD();
   counter = 0; //counter reset
-  phase = 1;
-  Phase0 = false;
+  if(one==true&&two==true) {
+    phase = 1;
+    Phase0 = false;
+  } else {
+    t.after(phase0Timer,phase0Off);
+  }
 }
 
 void phase1() {
