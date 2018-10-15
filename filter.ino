@@ -48,9 +48,9 @@ boolean Phase2 = false;
 boolean Phase3 = false;
 
 long phase0Timer = 1000; //Timer Phase 0: 2min 40seconds - 160000
-long phase1Timer = 60000; //Timer Phase 1: 1,5 hours - 5400000
-long phase2Timer = 60000; //Timer Phase 2: 2 minutes???? - 120000
-long phase3Timer = 60000; //Timer Phase 3: same time?? 2 minutes?? - 120000
+long phase1Timer = 5400000; //Timer Phase 1: 1,5 hours - 5400000
+long phase2Timer = 120000; //Timer Phase 2: 2 minutes???? - 120000
+long phase3Timer = 240000; //Timer Phase 3: same time?? 2 minutes?? - 120000
 
 void setup(){
   Serial.begin(9600); //Initialize Serial for debugging
@@ -118,12 +118,8 @@ boolean checkWater(int sensorNumber = 1) {
       val = analogRead(sensorPin);
       setPolarity(1,0,1,1,1);
       val += 600 - analogRead(sensorPin);
-      setPolarity(1,1,1,1,1);
-      /*
       Serial.println(val);
-      lcd.setCursor(1,1);
-      lcd.print(val);
-      */
+      setPolarity(1,1,1,1,1);
       if(val>=5) return true;
       return false;
       break;
@@ -132,6 +128,7 @@ boolean checkWater(int sensorNumber = 1) {
       val = analogRead(sensorPin);
       setPolarity(1,1,0,1,1);
       val += 600 - analogRead(sensorPin);
+      Serial.println(val);
       setPolarity(1,1,1,1,1);
       if(val>=5) return true;
       return false;
@@ -141,6 +138,7 @@ boolean checkWater(int sensorNumber = 1) {
       val = analogRead(sensorPin);
       setPolarity(1,0,0,0,1);
       val += 600 - analogRead(sensorPin);
+      Serial.println(val);
       if(val>=10) return true;
       return false;
       break;
@@ -149,6 +147,7 @@ boolean checkWater(int sensorNumber = 1) {
       val = analogRead(sensorPin);
       setPolarity(1,1,1,1,0);
       val += 600 - analogRead(sensorPin);
+      Serial.println(val);
       if(val>=10) return true;
       return false;
       break;
